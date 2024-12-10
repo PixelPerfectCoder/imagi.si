@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resizer and Compressor</title>
+</head>
+<body>
+    <h1>Upload an Image to Compress</h1>
+    <input type="file" id="imageInput" />
+    <button onclick="uploadImage()">Upload and Compress</button>
+    <div id="result"></div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function uploadImage() {
+            const file = document.getElementById('imageInput').files[0];
+            if (!file) {
+                alert("Please select an image first!");
+                return;
+            }
+
+            // Read the file and send it to TinyPNG API
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = e.target.result;
+                compressImage(imageData);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function compressImage(imageData) {
+            // TinyPNG API endpoint
+            const apiKey = "lBfdgzl3LRslrbKCKc23JKM08gYKBSJb"; // Replace with your TinyPNG API Key
+            const endpoint = "https://api.tinify.com/shrink";
+            
+            // Prepare the request to TinyPNG API
+            $.ajax({
+                url: endpoint,
+                type: "POST",
+                headers: {
+                    "Authorization": "Basic " + btoa("api:" + apiKey)
+                },
+                data: imageData,
+                processData: false,
+                success: function(response) {
+                    const compressedUrl = response.output.url;
+                    displayResult(compressedUrl);
+                },
+                error: function(error) {
+                    console.error("Error compressing image:", error);
+                    alert("There was an error with the compression.");
+                }
+            });
+        }
+
+        function displayResult(url) {
+            // Display the compressed image on the page
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<h2>Compressed Image:</h2><img src="${url}" alt="Compressed Image" /><br><a href="${url}" download>Download Compressed Image</a>`;
+        }
+    </script>
+</body>
+</html>
